@@ -9,6 +9,8 @@ import { getResponse } from '../contollers/getResponse'
 const router = Router()
 
 router.post('/', async (req: Request, res: Response) => {
+    console.log(req.body);
+
     const user = {
         phoneNumber: req.body.phoneNumber,
         email: req.body.email
@@ -31,6 +33,8 @@ router.post('/', async (req: Request, res: Response) => {
 
         const ContactArray = [...await User.find({ linkedId: PrimaryContact?._id }), PrimaryContact]
         const contact = getResponse([...<[]>ContactArray])
+        console.log(contact);
+
         res.status(200).json({ contact })
     } catch (error: any) {
         console.log(error.message);

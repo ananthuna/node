@@ -21,6 +21,7 @@ const getResponse_1 = require("../contollers/getResponse");
 // import { getPrimaryContact } from '../contollers/getPrimaryContact'
 const router = (0, express_1.Router)();
 router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log(req.body);
     const user = {
         phoneNumber: req.body.phoneNumber,
         email: req.body.email
@@ -35,6 +36,7 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         }
         const ContactArray = [...yield userModel_1.default.find({ linkedId: PrimaryContact === null || PrimaryContact === void 0 ? void 0 : PrimaryContact._id }), PrimaryContact];
         const contact = (0, getResponse_1.getResponse)([...ContactArray]);
+        console.log(contact);
         res.status(200).json({ contact });
     }
     catch (error) {

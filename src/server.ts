@@ -25,6 +25,10 @@ const StartServer = () => {
     router.use(express.urlencoded({ extended: true }))
     router.use(express.json())
 
+    router.get('/test', (req, res) => {
+        res.status(200).json({ messate: 'ok' })
+    })
+
 
     //routes
     router.use('/identify', userRouter)

@@ -23,6 +23,9 @@ mongoose_1.default.connect(config_1.config.mongo.url, { retryWrites: true, w: 'm
 const StartServer = () => {
     router.use(express_1.default.urlencoded({ extended: true }));
     router.use(express_1.default.json());
+    router.get('/test', (req, res) => {
+        res.status(200).json({ messate: 'ok' });
+    });
     //routes
     router.use('/identify', user_1.default);
     //error handling
