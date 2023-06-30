@@ -12,6 +12,5 @@ export interface UserProps {
 export const CreateContact = (userProps: UserProps): void => {
     const user = new User(userProps)
     user.save()
-    console.log('create');
     
 }

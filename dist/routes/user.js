@@ -8,20 +8,14 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const FindLinkedContacts_1 = require("../contollers/FindLinkedContacts");
-const userModel_1 = __importDefault(require("../models/userModel"));
-// import { Icontact } from '../contollers/FindLinkedContacts'
 const CreateContact_1 = require("../contollers/CreateContact");
 const getResponse_1 = require("../contollers/getResponse");
-// import { getPrimaryContact } from '../contollers/getPrimaryContact'
 const router = (0, express_1.Router)();
 router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    console.log(req.body);
+    // console.log(req.body);
     const user = {
         phoneNumber: req.body.phoneNumber,
         email: req.body.email
@@ -34,9 +28,8 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         if (!isContactExist) {
             (0, CreateContact_1.CreateContact)(arg);
         }
-        const ContactArray = [...yield userModel_1.default.find({ linkedId: PrimaryContact === null || PrimaryContact === void 0 ? void 0 : PrimaryContact._id }), PrimaryContact];
+        const ContactArray = yield (0, FindLinkedContacts_1.FindLinkedContacts)(user);
         const contact = (0, getResponse_1.getResponse)([...ContactArray]);
-        console.log(contact);
         res.status(200).json({ contact });
     }
     catch (error) {

@@ -1,15 +1,13 @@
 import { Request, Response, Router } from 'express'
 import { FindLinkedContacts } from '../contollers/FindLinkedContacts'
 import User from '../models/userModel'
-// import { Icontact } from '../contollers/FindLinkedContacts'
 import { CreateContact } from '../contollers/CreateContact'
 import { getResponse } from '../contollers/getResponse'
-// import { getPrimaryContact } from '../contollers/getPrimaryContact'
 
 const router = Router()
 
 router.post('/', async (req: Request, res: Response) => {
-    console.log(req.body);
+    // console.log(req.body);
 
     const user = {
         phoneNumber: req.body.phoneNumber,
@@ -31,10 +29,8 @@ router.post('/', async (req: Request, res: Response) => {
             CreateContact(arg)
         }
 
-        const ContactArray = [...await User.find({ linkedId: PrimaryContact?._id }), PrimaryContact]
+        const ContactArray = await FindLinkedContacts(user)
         const contact = getResponse([...<[]>ContactArray])
-        console.log(contact);
-
         res.status(200).json({ contact })
     } catch (error: any) {
         console.log(error.message);

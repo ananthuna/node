@@ -1,5 +1,6 @@
 import { Icontact } from "./FindLinkedContacts"
 import mongoose from "mongoose"
+import { UpdateContact } from "./UpdateContact"
 
 export interface ReturnType {
     primaryContatctId: mongoose.Schema.Types.ObjectId | null
@@ -12,13 +13,19 @@ export const getResponse = (array: Icontact[]) => {
     const emails: any[] = []
     const phoneNumbers: any[] = []
     const secondaryContactIds: any[] = []
-    let primaryContatctId
-    
+    let primaryContatctId: mongoose.Schema.Types.ObjectId | null = null
+
     array.map((contact, index) => {
         contact.email && emails.push(contact.email)
         contact.phoneNumber && phoneNumbers.push(contact.phoneNumber)
         if (contact.linkPrecedence === 'secondary') secondaryContactIds.push(contact._id)
-        if (contact.linkPrecedence === 'primary') primaryContatctId = contact._id
+        if (contact.linkPrecedence === 'primary') {
+            if (!primaryContatctId) {
+                primaryContatctId = contact._id
+            } else {
+                UpdateContact(contact._id)
+            }
+        }
     })
 
     return {

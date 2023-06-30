@@ -8,6 +8,5 @@ const userModel_1 = __importDefault(require("../models/userModel"));
 const CreateContact = (userProps) => {
     const user = new userModel_1.default(userProps);
     user.save();
-    console.log('create');
 };
 exports.CreateContact = CreateContact;
