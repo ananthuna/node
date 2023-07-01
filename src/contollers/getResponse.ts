@@ -22,11 +22,11 @@ export const getResponse = (array: Icontact[]) => {
         if (contact.linkPrecedence === 'primary') {
             if (!primaryContatctId) {
                 primaryContatctId = contact._id
-            } else {
-                UpdateContact(contact._id)
             }
         }
     })
+
+
 
     return {
         primaryContatctId,

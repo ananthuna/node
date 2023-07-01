@@ -1,13 +1,14 @@
 import { Request, Response, Router } from 'express'
-import { FindLinkedContacts } from '../contollers/FindLinkedContacts'
-import User from '../models/userModel'
+import { FindLinkedContacts, Icontact } from '../contollers/FindLinkedContacts'
 import { CreateContact } from '../contollers/CreateContact'
 import { getResponse } from '../contollers/getResponse'
+import { get } from 'mongoose'
+import { getPrimaryContacts } from '../contollers/getPrimaryContacts'
+import { UpdateContact } from '../contollers/UpdateContact'
 
 const router = Router()
 
 router.post('/', async (req: Request, res: Response) => {
-    // console.log(req.body);
 
     const user = {
         phoneNumber: req.body.phoneNumber,
@@ -15,23 +16,28 @@ router.post('/', async (req: Request, res: Response) => {
     }
 
     try {
-        const ContactByEmailAndPhone = await FindLinkedContacts(user)
-        const PrimaryContact = ContactByEmailAndPhone?.find(item => item.linkPrecedence === "primary")
-        const isContactExist = ContactByEmailAndPhone?.find(item => item.email === user.email && item.phoneNumber === user.phoneNumber)
-        const arg: any = {
-            ...user,
-            linkedId: PrimaryContact ? PrimaryContact._id : null,
-            linkPrecedence: PrimaryContact ? "secondary" : "primary",
-            deletedAt: null
+        const ContactByEmailAndPhone = await FindLinkedContacts(user) || []
+        const PrimaryContacts = getPrimaryContacts(ContactByEmailAndPhone)
+        let isContactListUpdated: Boolean = false
+        if (PrimaryContacts?.length > 1) {
+            //update contact primary to secondary
+            await UpdateContact(PrimaryContacts)
+            isContactListUpdated = true
+        } else if (ContactByEmailAndPhone?.length === 0) {
+            //create new primary contact
+            await CreateContact({ ...user, PrimaryContactId: null })
+            isContactListUpdated = true
+        } else if (ContactByEmailAndPhone?.length > 0) {
+            //create new secondary contact
+            await CreateContact({ ...user, PrimaryContactId: PrimaryContacts[0]?._id })
+            isContactListUpdated = true
         }
 
-        if (!isContactExist) {
-            CreateContact(arg)
-        }
-
-        const ContactArray = await FindLinkedContacts(user)
+        const ContactArray = isContactListUpdated ? await FindLinkedContacts(user) : ContactByEmailAndPhone
         const contact = getResponse([...<[]>ContactArray])
+        console.log('respon');
         res.status(200).json({ contact })
+
     } catch (error: any) {
         console.log(error.message);
         res.status(404).json({ message: error.message })

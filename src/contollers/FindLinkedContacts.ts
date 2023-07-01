@@ -26,16 +26,6 @@ export interface IContacts {
 export const FindLinkedContacts = async (props: PropsType): Promise<Icontact[]> => {
     const { email, phoneNumber } = props
     const AllContacts = await User.find({})
-    const ContactByEmailAndPhone: Icontact[] | undefined = []
 
-    AllContacts.forEach((contact) => {
-
-        if (contact.email === email || contact.phoneNumber === phoneNumber) {
-
-            ContactByEmailAndPhone.push(contact)
-        }
-    })
-    
-    return ContactByEmailAndPhone
-
+    return AllContacts.filter(item => item.email === email || item.phoneNumber === phoneNumber)
 }

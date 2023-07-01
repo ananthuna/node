@@ -9,8 +9,22 @@ export interface UserProps {
     deletedAt?: Date | null
 }
 
-export const CreateContact = (userProps: UserProps): void => {
-    const user = new User(userProps)
-    user.save()
-    
+export interface PropsType {
+    email: String
+    phoneNumber: String
+    PrimaryContactId: mongoose.Schema.Types.ObjectId | null
 }
+
+export const CreateContact = async (Contact?: PropsType): Promise<void> => {
+
+    const arg: UserProps = {
+        phoneNumber: Contact?.phoneNumber,
+        email: Contact?.email,
+        linkedId: Contact?.PrimaryContactId || null,
+        linkPrecedence: Contact?.PrimaryContactId ? "secondary" : "primary",
+        deletedAt: null
+    }
+    const user = new User(arg)
+    user.save()
+    console.log('contact created');
+}   
