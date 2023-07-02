@@ -13,23 +13,35 @@ const express_1 = require("express");
 const FindLinkedContacts_1 = require("../contollers/FindLinkedContacts");
 const CreateContact_1 = require("../contollers/CreateContact");
 const getResponse_1 = require("../contollers/getResponse");
+const getPrimaryContacts_1 = require("../contollers/getPrimaryContacts");
+const UpdateContact_1 = require("../contollers/UpdateContact");
 const router = (0, express_1.Router)();
 router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    // console.log(req.body);
+    var _a;
     const user = {
         phoneNumber: req.body.phoneNumber,
         email: req.body.email
     };
     try {
-        const ContactByEmailAndPhone = yield (0, FindLinkedContacts_1.FindLinkedContacts)(user);
-        const PrimaryContact = ContactByEmailAndPhone === null || ContactByEmailAndPhone === void 0 ? void 0 : ContactByEmailAndPhone.find(item => item.linkPrecedence === "primary");
-        const isContactExist = ContactByEmailAndPhone === null || ContactByEmailAndPhone === void 0 ? void 0 : ContactByEmailAndPhone.find(item => item.email === user.email && item.phoneNumber === user.phoneNumber);
-        const arg = Object.assign(Object.assign({}, user), { linkedId: PrimaryContact ? PrimaryContact._id : null, linkPrecedence: PrimaryContact ? "secondary" : "primary", deletedAt: null });
-        if (!isContactExist) {
-            (0, CreateContact_1.CreateContact)(arg);
+        const ContactByEmailAndPhone = (yield (0, FindLinkedContacts_1.FindLinkedContacts)(user)) || [];
+        let PrimaryContacts = yield (0, getPrimaryContacts_1.getPrimaryContacts)(ContactByEmailAndPhone);
+        let isContactListUpdated = false;
+        const isContactExist = ContactByEmailAndPhone.find((item) => item.email === user.email && item.phoneNumber === user.phoneNumber);
+        if ((PrimaryContacts === null || PrimaryContacts === void 0 ? void 0 : PrimaryContacts.length) > 1) {
+            yield (0, UpdateContact_1.UpdateContact)(PrimaryContacts);
+            isContactListUpdated = true;
         }
-        const ContactArray = yield (0, FindLinkedContacts_1.FindLinkedContacts)(user);
-        const contact = (0, getResponse_1.getResponse)([...ContactArray]);
+        else if ((ContactByEmailAndPhone === null || ContactByEmailAndPhone === void 0 ? void 0 : ContactByEmailAndPhone.length) === 0) {
+            const userContact = yield (0, CreateContact_1.CreateContact)(Object.assign(Object.assign({}, user), { PrimaryContactId: null }));
+            if (userContact.linkPrecedence === "primary")
+                PrimaryContacts.push(userContact);
+            isContactListUpdated = true;
+        }
+        else if ((ContactByEmailAndPhone === null || ContactByEmailAndPhone === void 0 ? void 0 : ContactByEmailAndPhone.length) > 0 && !isContactExist) {
+            yield (0, CreateContact_1.CreateContact)(Object.assign(Object.assign({}, user), { PrimaryContactId: (_a = PrimaryContacts[0]) === null || _a === void 0 ? void 0 : _a._id }));
+            isContactListUpdated = true;
+        }
+        const contact = yield (0, getResponse_1.getResponse)(PrimaryContacts[0]);
         res.status(200).json({ contact });
     }
     catch (error) {

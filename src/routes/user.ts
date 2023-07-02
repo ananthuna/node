@@ -4,6 +4,7 @@ import { CreateContact } from '../contollers/CreateContact'
 import { getResponse } from '../contollers/getResponse'
 import { getPrimaryContacts } from '../contollers/getPrimaryContacts'
 import { UpdateContact } from '../contollers/UpdateContact'
+import User from '../models/userModel'
 
 const router = Router()
 
@@ -16,22 +17,29 @@ router.post('/', async (req: Request, res: Response) => {
 
     try {
         const ContactByEmailAndPhone = await FindLinkedContacts(user) || []
-        const PrimaryContacts = getPrimaryContacts(ContactByEmailAndPhone)
+        let PrimaryContacts =await getPrimaryContacts(ContactByEmailAndPhone)
         let isContactListUpdated: Boolean = false
         const isContactExist = ContactByEmailAndPhone.find((item) => item.email === user.email && item.phoneNumber === user.phoneNumber)
 
         if (PrimaryContacts?.length > 1) {
+
             await UpdateContact(PrimaryContacts)
             isContactListUpdated = true
+
         } else if (ContactByEmailAndPhone?.length === 0) {
-            await CreateContact({ ...user, PrimaryContactId: null })
+
+            const userContact = await CreateContact({ ...user, PrimaryContactId: null })
+            if (userContact.linkPrecedence === "primary") PrimaryContacts.push(userContact)
             isContactListUpdated = true
+
         } else if (ContactByEmailAndPhone?.length > 0 && !isContactExist) {
+
             await CreateContact({ ...user, PrimaryContactId: PrimaryContacts[0]?._id })
             isContactListUpdated = true
+            
         }
 
-        const contact =await getResponse(PrimaryContacts[0])
+        const contact = await getResponse(PrimaryContacts[0])
         res.status(200).json({ contact })
 
     } catch (error: any) {

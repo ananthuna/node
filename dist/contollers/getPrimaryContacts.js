@@ -12,11 +12,18 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.FindLinkedContacts = void 0;
+exports.getPrimaryContacts = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
-const FindLinkedContacts = (props) => __awaiter(void 0, void 0, void 0, function* () {
-    const { email, phoneNumber } = props;
-    const AllContacts = yield userModel_1.default.find({});
-    return AllContacts.filter(item => item.email === email || item.phoneNumber === phoneNumber);
+const getPrimaryContacts = (array) => __awaiter(void 0, void 0, void 0, function* () {
+    const PrimaryContacts = [];
+    const linkedIds = [...new Set(array.map(item => item === null || item === void 0 ? void 0 : item.linkedId))];
+    if (!linkedIds[0]) {
+        return array.filter(item => item.linkPrecedence === 'primary');
+    }
+    for (let i in linkedIds) {
+        const contact = yield userModel_1.default.findOne({ _id: linkedIds[i] });
+        contact && PrimaryContacts.push(contact);
+    }
+    return PrimaryContacts;
 });
-exports.FindLinkedContacts = FindLinkedContacts;
+exports.getPrimaryContacts = getPrimaryContacts;

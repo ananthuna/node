@@ -14,8 +14,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateContact = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
-const UpdateContact = (id) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield userModel_1.default.findOne({ _id: id });
-    yield userModel_1.default.findOneAndDelete({ _id: id });
+const UpdateContact = (contact) => __awaiter(void 0, void 0, void 0, function* () {
+    const PrimaryContactId = contact[0]._id;
+    const updateContactId = contact[1]._id;
+    yield userModel_1.default.findOneAndUpdate({ _id: updateContactId }, { linkPrecedence: 'secondary', linkedId: PrimaryContactId }, { new: true });
+    yield userModel_1.default.updateMany({ linkedId: updateContactId }, { linkedId: PrimaryContactId });
 });
 exports.UpdateContact = UpdateContact;

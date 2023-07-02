@@ -10,22 +10,21 @@ export interface ReturnType {
 }
 
 export const getResponse = async (primaryContact: Icontact) => {
-    const emails: any[] = [primaryContact.email]
-    const phoneNumbers: any[] = [primaryContact.phoneNumber]
-    const secondaryContactIds: any[] = []
-    const array = await User.find({ linkedId: primaryContact._id })
-    array.map((contact) => {
-        contact.email && emails.push(contact.email)
-        contact.phoneNumber && phoneNumbers.push(contact.phoneNumber)
-        if (contact.linkPrecedence === 'secondary') secondaryContactIds.push(contact._id)
-    })
 
-    return {
-        primaryContatctId: primaryContact._id,
-        emails: [...new Set(emails)],
-        phoneNumbers: [...new Set(phoneNumbers)],
-        secondaryContactIds: [...new Set(secondaryContactIds)]
-    }
+        const emails: any[] = [primaryContact?.email]
+        const phoneNumbers: any[] = [primaryContact?.phoneNumber]
+        const secondaryContactIds: any[] = []
+        const array = await User.find({ linkedId: primaryContact?._id })
+        array?.length > 0 && array.map((contact) => {
+            contact.email && emails.push(contact.email)
+            contact.phoneNumber && phoneNumbers.push(contact.phoneNumber)
+            if (contact.linkPrecedence === 'secondary') secondaryContactIds.push(contact._id)
+        })
 
-
+        return {
+            primaryContatctId: primaryContact?._id,
+            emails: [...new Set(emails)],
+            phoneNumbers: [...new Set(phoneNumbers)],
+            secondaryContactIds: [...new Set(secondaryContactIds)]
+        }
 }

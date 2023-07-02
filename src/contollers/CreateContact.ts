@@ -1,5 +1,6 @@
 import User from '../models/userModel'
 import mongoose from 'mongoose'
+import { Icontact } from './FindLinkedContacts'
 
 export interface UserProps {
     phoneNumber?: String
@@ -15,8 +16,7 @@ export interface PropsType {
     PrimaryContactId: mongoose.Schema.Types.ObjectId | null
 }
 
-export const CreateContact = async (Contact: PropsType): Promise<void> => {
-    console.log(Contact);
+export const CreateContact = async (Contact: PropsType): Promise<Icontact> => {
 
     const arg: UserProps = {
         phoneNumber: Contact.phoneNumber,
@@ -27,4 +27,5 @@ export const CreateContact = async (Contact: PropsType): Promise<void> => {
     }
     const user = new User(arg)
     user.save()
+    return user
 }   
